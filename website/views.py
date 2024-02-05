@@ -15,7 +15,6 @@ def home():
         if len(prompt) >= 2:
             reply_content = generate_response(prompt)
             save_template(prompt, reply_content)
-            flash("Template generated!", category="success")
             
             return redirect(url_for("views.get_template", id=Template.query.order_by(Template.id.desc()).first().id))
         else:
@@ -28,8 +27,8 @@ def generate_response(prompt: str) -> str:
 
     message_history = []
 
-    message_history.append({"role": "system", "content": "You are a website designer and web developer. You create website templates solely in HTML based on user prompts. You must create exactly one HTML file with embedded CSS styling (no CSS file). Do not use backticks to format responses in HTML."})
-    message_history.append({"role": "user", "content": f"Create a website template for {prompt}."})
+    message_history.append({"role": "system", "content": "You are a website designer and web developer. You create website templates solely in HTML based on user prompts. You must create exactly one HTML file with embedded CSS styling (no CSS file). Do not use backticks to format responses in HTML. Make the website specific to the prompt by prepopulating with relevant text, emojis, and stylized buttons. Do not use external images. Make the websites lively and unique and relevant to the type of prompt."})
+    message_history.append({"role": "user", "content": f"Create a website template for: {prompt}."})
 
     completion = client.chat.completions.create(
     model="gpt-3.5-turbo",
