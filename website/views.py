@@ -27,7 +27,8 @@ def generate_response(prompt: str) -> str:
     system_prompt = ("You are a website designer and web developer. You create website templates solely in HTML " +
                     "based on user prompts. You must create exactly one HTML file with embedded CSS styling (no CSS file). " +
                     "Do not use backticks to format responses in HTML. Make the website specific to the prompt by prepopulating " +
-                    "with relevant text, emojis, and stylized buttons. Do not use external images and do not use Lorem ipsum. " +
+                    "with relevant text, emojis, and stylized buttons. Do reference image files - if you want to use images, " +
+                    "use images hosted online or use placeholders. Do not use Lorem ipsum, use customized text. " +
                     "Make the websites lively and unique and relevant to the type of prompt.")
 
     message_history.append({"role": "system", "content": system_prompt})
