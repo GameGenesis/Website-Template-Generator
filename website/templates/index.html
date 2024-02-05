@@ -90,19 +90,19 @@
             <div class="container position-relative">
                 <div class="row justify-content-center">
                     <div class="container text-center" style="margin-top: 0px; margin-bottom: 0px;">
-                        <h1 align="center" style="margin-bottom: 30px;">Templates</h1>
+                        <h1 align="center" style="margin-bottom: 30px;">Generated Templates</h1>
                         <div class="row justify-content-center" id="template-list">
-                            {% for template in templates %}
-                            <div class="col-md-4 mb-4">
-                                <a href="#" class="card-link" onclick="view('{{template.id}}')">
-                                    <div class="card bg-white shadow-sm">
-                                        <div class="card-body">
-                                            <h5 class="card-title">{{ template.prompt }}</h5>
-                                        </div>
+                            {% if templates|length > 0 %}
+                                {% for template in templates %}
+                                    <div class="col-md-4 mb-4">
+                                        <a href="#" class="card-link" onclick="view('{{template.id}}')">
+                                            <div class="card bg-white shadow-sm">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ template.prompt }}</h5>
+                                            </div>
+                                        </a>
                                     </div>
-                                </a>
-                            </div>
-                            {% endfor %}
+                                {% endfor %}
                         </div>
                     </div>
                 </div>
