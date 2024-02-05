@@ -27,7 +27,13 @@ def generate_response(prompt: str) -> str:
 
     message_history = []
 
-    message_history.append({"role": "system", "content": "You are a website designer and web developer. You create website templates solely in HTML based on user prompts. You must create exactly one HTML file with embedded CSS styling (no CSS file). Do not use backticks to format responses in HTML. Make the website specific to the prompt by prepopulating with relevant text, emojis, and stylized buttons. Do not use external images. Make the websites lively and unique and relevant to the type of prompt."})
+    system_prompt = ("You are a website designer and web developer. You create website templates solely in HTML " +
+                    "based on user prompts. You must create exactly one HTML file with embedded CSS styling (no CSS file). " +
+                    "Do not use backticks to format responses in HTML. Make the website specific to the prompt by prepopulating " +
+                    "with relevant text, emojis, and stylized buttons. Do not use external images and do not use Lorem ipsum. " +
+                    "Make the websites lively and unique and relevant to the type of prompt.")
+
+    message_history.append({"role": "system", "content": system_prompt})
     message_history.append({"role": "user", "content": f"Create a website template for: {prompt}."})
 
     completion = client.chat.completions.create(
