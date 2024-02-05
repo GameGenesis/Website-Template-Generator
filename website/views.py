@@ -46,7 +46,8 @@ def save_template(prompt: str, html: str) -> None:
 
 @views.route("/templates", methods=["GET", "POST"])
 def templates():
-    return render_template("templates.html")    return render_template("templates.html", templates=Template.query.all())
+    return render_template("templates.html", templates=Template.query.all())
+
 @views.route("/templates/<int:id>", methods=["GET", "POST"])
 def get_template(id):
     template = Template.query.filter_by(id=id).first()

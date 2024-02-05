@@ -1,5 +1,17 @@
 {% extends "base.html" %} {% block title %}Templates{% endblock %}
 
 {% block content %}
-<h1>This is the templates page</h1>
+<h1 align="center">Templates</h1>
+<ul class="list-group list-group-flush" id="template-list">
+    {% for template in templates %}
+    <li class="list-group-item">
+        <div class="d-flex justify-content-between">
+            {{ template.prompt }}
+            <button type="button" class="btn btn-primary mt-2 mr-2" onclick="view('{{template.id}}')">
+                View
+            </button>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
 {% endblock %}
