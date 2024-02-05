@@ -19,7 +19,7 @@
         <!-- Navigation-->
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href="#!">Tempate Generator</a>
+                <a class="navbar-brand" href="/">Tempate Generator</a>
             </div>
         </nav>
 
@@ -31,7 +31,7 @@
                         <div class="text-center text-white">
                             <!-- Page heading-->
                             <h1 class="mb-5">Generate an entire webpage based on one prompt!</h1>
-                            <form id="promptForm" method="post" action="{{ url_for('views.home') }}">
+                            <form id="promptForm" method="post" action="{{ url_for('views.home') }}" onsubmit="showSubmitResult()">
                                 <div class="row align-items-center">
                                     <div class="col">
                                         <input class="form-control" id="userInput" type="text" placeholder="Enter a prompt for a webpage" name="prompt" value="{{ prompt }}" required />
@@ -40,8 +40,18 @@
                                         <button class="btn btn-primary" id="submitButton" type="submit">Submit</button>
                                     </div>
                                 </div>
-                            </form>                            
-                            <div id="submitResult" class="text-center"></div>
+                            </form>
+                            <div id="submitResult" class="text-center" style="display: none;">Generating webpage... This may take a few seconds</div>
+                            
+                            <script>
+                                function showSubmitResult() {
+                                    // Show the submitResult element
+                                    document.getElementById("submitResult").style.display = "block";
+
+                                    document.getElementById("submitButton").disabled = true;
+                                    document.getElementById("submitButton").innerHTML = 'Generating...';
+                                }
+                            </script>
                         </div>
                     </div>
                 </div>
