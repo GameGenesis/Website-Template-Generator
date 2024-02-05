@@ -12,15 +12,12 @@ def home():
     if request.method == "POST":
         prompt = request.form.get("prompt")
 
-        if len(prompt) >= 2:
-            reply_content = generate_response(prompt)
-            save_template(prompt, reply_content)
-            
-            return redirect(url_for("views.get_template", id=Template.query.order_by(Template.id.desc()).first().id))
-        else:
-            flash("Prompt must be at least two characters", category="error")
+        reply_content = generate_response(prompt)
+        save_template(prompt, reply_content)
+        
+        return redirect(url_for("views.get_template", id=Template.query.order_by(Template.id.desc()).first().id))
 
-    return render_template("home.html")
+    return render_template("index.html", templates=Template.query.all())
 
 def generate_response(prompt: str) -> str:
     client = OpenAI()
@@ -48,10 +45,6 @@ def save_template(prompt: str, html: str) -> None:
     new_template = Template(prompt=prompt, html=html)
     db.session.add(new_template)
     db.session.commit()
-
-@views.route("/templates", methods=["GET", "POST"])
-def templates():
-    return render_template("templates.html", templates=Template.query.all())
 
 @views.route("/templates/<int:id>", methods=["GET", "POST"])
 def get_template(id):
