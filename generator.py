@@ -51,7 +51,7 @@ css_content = split_content[current_content_index].strip()
 
 # --------------- IO ---------------------
 
-template_dir = "templates"
+template_dir = "output"
 html_path = os.path.join(template_dir, html_filename)
 css_path = os.path.join(template_dir, css_filename)
 
