@@ -99,10 +99,14 @@
                                             <div class="card bg-white shadow-sm">
                                                 <div class="card-body">
                                                     <h5 class="card-title">{{ template.prompt }}</h5>
+                                                </div>
                                             </div>
                                         </a>
                                     </div>
                                 {% endfor %}
+                            {% else %}
+                            You have not generated any templates yet. Enter a prompt to start generating.
+                            {% endif %}
                         </div>
                     </div>
                 </div>
