@@ -13,7 +13,8 @@ def home():
         prompt = request.form.get("prompt")
 
         if not prompt or is_invalid(prompt):
-            return render_template("index.html", templates=Template.query.all(), message="Invalid or inappropriate prompt. Please try again.")
+            return render_template("index.html", templates=Template.query.all(),
+                                   message="Invalid or inappropriate prompt. Please try again.")
 
         reply_content = generate_response(prompt)
         save_template(prompt, reply_content)
@@ -51,9 +52,8 @@ def save_template(prompt: str, html: str) -> None:
     db.session.commit()
 
 def is_invalid(prompt: str) -> bool:
-    with open("website/static/censor", "rb") as f:
+    with open(os.path.join(os.getcwd(), "website", "static", "censor"), "rb") as f:
         censor_list = f.read().decode("unicode_escape").splitlines()
-        print(censor_list)
         for phrase in censor_list:
             if phrase.lower() in prompt.lower():
                 return True
