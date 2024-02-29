@@ -49,12 +49,14 @@
                                 </div>
                             </div>
                         </form>
+                        <div id="message" class="text-center">{{ message }}</div>
                         <div id="submitResult" class="text-center" style="display: none;">Generating webpage... This may
                             take a few seconds</div>
 
                         <script>
                             function showSubmitResult() {
                                 // Show the submitResult element
+                                document.getElementById("message").innerHTML = "";
                                 document.getElementById("submitResult").style.display = "block";
 
                                 document.getElementById("submitButton").disabled = true;

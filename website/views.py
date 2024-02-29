@@ -12,12 +12,15 @@ def home():
     if request.method == "POST":
         prompt = request.form.get("prompt")
 
+        if not prompt or is_invalid(prompt):
+            return render_template("index.html", templates=Template.query.all(), message="Invalid or inappropriate prompt. Please try again.")
+
         reply_content = generate_response(prompt)
         save_template(prompt, reply_content)
         
         return redirect(url_for("views.get_template", id=Template.query.order_by(Template.id.desc()).first().id))
 
-    return render_template("index.html", templates=Template.query.all())
+    return render_template("index.html", templates=Template.query.all(), message="")
 
 def generate_response(prompt: str) -> str:
     client = OpenAI()
@@ -46,6 +49,15 @@ def save_template(prompt: str, html: str) -> None:
     new_template = Template(prompt=prompt, html=html)
     db.session.add(new_template)
     db.session.commit()
+
+def is_invalid(prompt: str) -> bool:
+    with open("website/static/censor", "rb") as f:
+        censor_list = f.read().decode("unicode_escape").splitlines()
+        print(censor_list)
+        for phrase in censor_list:
+            if phrase.lower() in prompt.lower():
+                return True
+    return False
 
 @views.route("/templates/<int:id>", methods=["GET", "POST"])
 def get_template(id):
