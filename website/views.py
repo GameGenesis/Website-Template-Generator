@@ -52,11 +52,30 @@ def save_template(prompt: str, html: str) -> None:
     db.session.commit()
 
 def is_invalid(prompt: str) -> bool:
-    with open(os.path.join(os.getcwd(), "website", "static", "censor"), "rb") as f:
-        censor_list = f.read().decode("unicode_escape").splitlines()
-        for phrase in censor_list:
-            if phrase.lower() in prompt.lower():
-                return True
+    blacklist_path = os.path.join(os.getcwd(), "website", "static", "blacklist")
+    whitelist_path = os.path.join(os.getcwd(), "website", "static", "whitelist")
+
+    with open(blacklist_path, "rb") as blf:
+        blacklist = blf.read().decode("unicode_escape").splitlines()
+
+    with open(whitelist_path, "rb") as wlf:
+        whitelist = wlf.read().decode("unicode_escape").splitlines()
+
+    for bl_phrase in blacklist:
+        if bl_phrase.lower() not in prompt.lower():
+            continue
+
+        print(bl_phrase.lower())
+        whitelisted = False
+
+        for wl_phrase in whitelist:
+            if bl_phrase.lower() not in prompt.lower().replace(wl_phrase.lower(), ""):
+                print(wl_phrase.lower())
+                whitelisted = True
+        
+        if not whitelisted:
+            return True
+    
     return False
 
 @views.route("/templates/<int:id>", methods=["GET", "POST"])
