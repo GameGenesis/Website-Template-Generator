@@ -52,6 +52,7 @@ def save_template(prompt: str, html: str) -> None:
     db.session.commit()
 
 def is_invalid(prompt: str) -> bool:
+    stripped_prompt = prompt.replace(" ", "")
     blacklist_path = os.path.join(os.getcwd(), "website", "static", "blacklist")
     whitelist_path = os.path.join(os.getcwd(), "website", "static", "whitelist")
 
@@ -62,14 +63,15 @@ def is_invalid(prompt: str) -> bool:
         whitelist = wlf.read().decode("unicode_escape").splitlines()
 
     for bl_phrase in blacklist:
-        if bl_phrase.lower() not in prompt.lower():
+        if bl_phrase.lower() not in stripped_prompt.lower():
             continue
 
         print(bl_phrase.lower())
+
         whitelisted = False
 
         for wl_phrase in whitelist:
-            if bl_phrase.lower() not in prompt.lower().replace(wl_phrase.lower(), ""):
+            if bl_phrase.lower() not in stripped_prompt.lower().replace(wl_phrase.lower(), ""):
                 print(wl_phrase.lower())
                 whitelisted = True
         
