@@ -80,10 +80,14 @@ def is_invalid(prompt: str) -> bool:
     
     return False
 
-@views.route("/templates/<int:id>", methods=["GET", "POST"])
+@views.route("/templates/<int:id>/", methods=["GET", "POST"])
 def get_template(id):
     template = Template.query.filter_by(id=id).first()
     if not template:
         return "No template with that id", 404
 
     return render_template_string(template.html)
+
+@views.route("/templates/", methods=["GET", "POST"])
+def display_templates():
+    return redirect(url_for("views.home") + "#templates")
