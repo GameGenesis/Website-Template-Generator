@@ -13,7 +13,7 @@ def home():
         prompt = request.form.get("prompt")
 
         if not prompt or is_invalid(prompt):
-            return render_template("index.html", templates=Template.query.all(),
+            return render_template("home.html", templates=Template.query.all(),
                                    message="Invalid or inappropriate prompt. Please try again.")
 
         reply_content = generate_response(prompt)
@@ -21,7 +21,7 @@ def home():
         
         return redirect(url_for("views.get_template", id=Template.query.order_by(Template.id.desc()).first().id))
 
-    return render_template("index.html", templates=Template.query.all(), message="")
+    return render_template("home.html", templates=Template.query.all(), message="")
 
 def generate_response(prompt: str) -> str:
     client = OpenAI()
@@ -85,7 +85,7 @@ def get_template(id):
     if not template:
         return "No template with that id", 404
 
-    return render_template_string(template.html)
+    return render_template_string("{% extends \"template.html\" %} {% block content %}" + template.html + "{% endblock %}");
 
 @views.route("/templates/", methods=["GET", "POST"])
 def display_templates():
