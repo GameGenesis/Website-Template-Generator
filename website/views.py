@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, render_template_string, redirect, url_for
+from flask import Blueprint, Response, render_template, request, render_template_string, redirect, url_for
 from .models import Template
 from . import db
 import os
@@ -84,6 +84,12 @@ def get_template(id):
     template = Template.query.filter_by(id=id).first()
     if not template:
         return "No template with that id", 404
+    
+    if request.method == "POST":
+        return Response(
+        template.html,
+        mimetype='text/html',
+        headers={'Content-disposition': 'attachment; filename=index.html'})
 
     return render_template_string("{% extends \"template.html\" %} {% block content %}" + template.html + "{% endblock %}");
 
