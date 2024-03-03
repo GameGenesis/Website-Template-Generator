@@ -1,11 +1,14 @@
-from flask import Blueprint, Response, render_template, request, render_template_string, redirect, url_for
+from flask import Blueprint, Response, render_template, request, redirect, url_for
 from .models import Template
 from . import db
 import os
 
 from openai import OpenAI
+from typing import List
 
 views = Blueprint("views", __name__)
+
+USE_FULL_MESSAGE_HISTORY = False # Set to True for way better website update context (but more costly and has a token limit).
 
 @views.route("/", methods=["GET", "POST"])
 def home():
@@ -16,8 +19,8 @@ def home():
             return render_template("home.html", templates=Template.query.all(),
                                    message="Invalid or inappropriate prompt. Please try again.")
 
-        reply_content = generate_response(prompt)
-        save_template(prompt, reply_content)
+        reply_content, message_history = generate_response(prompt)
+        save_template(prompt, reply_content, message_history)
         
         return redirect(url_for("views.get_template", id=Template.query.order_by(Template.id.desc()).first().id))
 
@@ -39,15 +42,44 @@ def generate_response(prompt: str) -> str:
     message_history.append({"role": "user", "content": f"Create a website template for: {prompt}."})
 
     completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=message_history
+        model="gpt-3.5-turbo",
+        messages=message_history
     )
 
-    return completion.choices[0].message.content.strip()
+    response = completion.choices[0].message.content.strip()
+    message_history.append({"role": "assistant", "content": response})
+    return response, message_history
 
-def save_template(prompt: str, html: str) -> None:
+def update_response(new_prompt: str, simplified_message_history: List[str], full_message_history: List[str]) -> str:
+    client = OpenAI()
+
+    if len(simplified_message_history) < 3:
+        raise Exception("Invalid message history!")
+        
+    if not full_message_history:
+        full_message_history = simplified_message_history
+    
+    simplified_message_history = simplified_message_history[:2]
+
+    full_prompt = {"role": "user", "content": f"Update the website template with the following information: {new_prompt}. Reply with the entire HTML file with the updated changes."}
+    simplified_message_history.append(full_prompt)
+    full_message_history.append(full_prompt)
+
+    message_history = full_message_history if USE_FULL_MESSAGE_HISTORY else simplified_message_history
+
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=message_history
+    )
+
+    response = completion.choices[0].message.content.strip()
+    simplified_message_history = [simplified_message_history[0], simplified_message_history[1], {"role": "assistant", "content": response}]
+    full_message_history.append({"role": "assistant", "content": response})
+    return response, simplified_message_history, full_message_history
+
+def save_template(prompt: str, html: str, simplified_message_history: List[str]) -> None:
     # Save template in the generated database
-    new_template = Template(prompt=prompt, html=html)
+    new_template = Template(prompt=prompt, html=html, simplified_message_history=simplified_message_history, full_message_history=simplified_message_history)
     db.session.add(new_template)
     db.session.commit()
 
@@ -86,13 +118,27 @@ def get_template(id):
         return "No template with that id", 404
     
     if request.method == "POST":
-        return Response(
-        template.html,
-        mimetype='text/html',
-        headers={'Content-disposition': 'attachment; filename=index.html'})
+        if request.form.get("delete"):
+            db.session.delete(template)
+            db.session.commit()
+            return redirect(url_for("views.home"))
+        elif request.form.get("download") and not request.form.get("prompt"):
+            return Response(
+                template.html,
+                mimetype='text/html',
+                headers={'Content-disposition': 'attachment; filename=index.html'}
+            )
+        else:
+            prompt = request.form.get("prompt")
+            if not prompt or is_invalid(prompt):
+                return render_template("template.html", template=template.html)
 
-    return render_template_string("{% extends \"template.html\" %} {% block content %}" + template.html + "{% endblock %}");
-
+            template.html, template.simplified_message_history, template.full_message_history = update_response(prompt, template.simplified_message_history, template.full_message_history)
+            print(template.full_message_history)
+            db.session.commit()
+        
+    return render_template("template.html", template=template.html)
+        
 @views.route("/templates/", methods=["GET", "POST"])
 def display_templates():
     return redirect(url_for("views.home") + "#templates")
