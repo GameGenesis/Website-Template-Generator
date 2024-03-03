@@ -56,7 +56,7 @@ def update_response(new_prompt: str, message_history: List[str]) -> str:
     if len(message_history) < 3:
         raise Exception("Invalid message history!")
     
-    simplified_message_history = message_history[:1].append(message_history[-1])
+    simplified_message_history = [message_history[0], message_history[1], message_history[-1]]
 
     full_prompt = {"role": "user", "content": f"Update the website template with the following information: {new_prompt}. Reply with the entire HTML file with the updated changes."}
     simplified_message_history.append(full_prompt)
