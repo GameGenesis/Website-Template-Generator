@@ -50,36 +50,30 @@ def generate_response(prompt: str) -> str:
     message_history.append({"role": "assistant", "content": response})
     return response, message_history
 
-def update_response(new_prompt: str, simplified_message_history: List[str], full_message_history: List[str]) -> str:
+def update_response(new_prompt: str, message_history: List[str]) -> str:
     client = OpenAI()
 
-    if len(simplified_message_history) < 3:
+    if len(message_history) < 3:
         raise Exception("Invalid message history!")
-        
-    if not full_message_history:
-        full_message_history = simplified_message_history
     
-    simplified_message_history = simplified_message_history[:2]
+    simplified_message_history = message_history[:1].append(message_history[-1])
 
     full_prompt = {"role": "user", "content": f"Update the website template with the following information: {new_prompt}. Reply with the entire HTML file with the updated changes."}
     simplified_message_history.append(full_prompt)
-    full_message_history.append(full_prompt)
-
-    message_history = full_message_history if USE_FULL_MESSAGE_HISTORY else simplified_message_history
+    message_history.append(full_prompt)
 
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=message_history
+        messages=message_history if USE_FULL_MESSAGE_HISTORY else simplified_message_history
     )
 
     response = completion.choices[0].message.content.strip()
-    simplified_message_history = [simplified_message_history[0], simplified_message_history[1], {"role": "assistant", "content": response}]
-    full_message_history.append({"role": "assistant", "content": response})
-    return response, simplified_message_history, full_message_history
+    message_history.append({"role": "assistant", "content": response})
+    return response, message_history
 
-def save_template(prompt: str, html: str, simplified_message_history: List[str]) -> None:
+def save_template(prompt: str, html: str, message_history: List[str]) -> None:
     # Save template in the generated database
-    new_template = Template(prompt=prompt, html=html, simplified_message_history=simplified_message_history, full_message_history=simplified_message_history)
+    new_template = Template(prompt=prompt, html=html, message_history=message_history)
     db.session.add(new_template)
     db.session.commit()
 
@@ -133,8 +127,8 @@ def get_template(id):
             if not prompt or is_invalid(prompt):
                 return render_template("template.html", template=template.html)
 
-            template.html, template.simplified_message_history, template.full_message_history = update_response(prompt, template.simplified_message_history, template.full_message_history)
-            print(template.full_message_history)
+            template.html, template.message_history = update_response(prompt, template.message_history)
+            print(template.message_history)
             db.session.commit()
         
     return render_template("template.html", template=template.html)
