@@ -29,7 +29,7 @@
             border: none;
             color: #FFF;
             border-radius: 3.125rem;
-            box-shadow: 0.125rem 0.125rem 0.1875rem #999;
+            box-shadow: 0.125rem 0.125rem 0.1875rem rgba(0, 0, 0, 0.15);
             cursor: pointer;
         }
 
@@ -42,14 +42,117 @@
             bottom: 2.5rem;
             left: 2.5rem;
         }
+
+        .float-search {
+            position: fixed;
+            bottom: 6rem;
+            right: 11rem;
+            transition: all ease-in-out 0.2s;
+        }
+
+        .search-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            outline: none;
+            border: none;
+            background: white;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 1.5rem;
+            opacity: 0;
+            z-index: 5;
+            transition: all 0.2;
+            cursor: pointer;
+            box-shadow: 0.125rem 0.125rem 0.1875rem rgba(0, 0, 0, 0.15);
+        }
+
+        .search-bar:focus {
+            width: 15rem;
+            left: auto;
+            opacity: 1;
+            cursor: text;
+            transition: all 0.2;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        .search-toggler {
+            position: absolute;
+            width: 3.75rem;
+            height: 3.75rem;
+            background: #0d6efd;
+            opacity: 1;
+            top: -4px;
+            left: -4px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0.125rem 0.125rem 0.1875rem rgba(0, 0, 0, 0.15);
+        }
+
+        .search-toggler::before {
+            content: "";
+            position: absolute;
+            margin: auto;
+            top: 22px;
+            right: 0;
+            bottom: 0;
+            left: 22px;
+            width: 12px;
+            height: 2px;
+            background: #fff;
+            transform: rotate(45deg);
+            transition: all 0.2s;
+        }
+
+        .search-toggler::after {
+            content: "";
+            position: absolute;
+            margin: auto;
+            top: -5px;
+            right: 0;
+            bottom: 0;
+            left: -5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            transition: all 0.2s;
+        }
+
+        .search-bar:focus~.search-toggler {
+            right: 400px;
+            background: #151515;
+            z-index: 6;
+            transition: all 0.2;
+        }
+
+        .search-bar:focus~.search-toggler::before {
+            top: 0;
+            left: 0;
+            width: 25px;
+        }
+
+        .search-bar:focus~.search-toggler::after {
+            top: 0;
+            left: 0;
+            width: 25px;
+            height: 2px;
+            border: none;
+            background: white;
+            border-radius: 0%;
+            transform: rotate(-45deg);
+        }
     </style>
     </style>
 </head>
 
 <body>
     <div>
-        {% block content %}
-        {% endblock %}
+        {{ template|safe }}
     </div>
 
     <a href="/" class="float-btn float-btn-btm-left">
@@ -57,10 +160,22 @@
     </a>
 
     <form method="POST">
-        <button class="float-btn float-btn-btm-right" type="submit">
+        <button class="float-btn float-btn-btm-right" type="submit" name="download" value="download">
             <h2><i class="bi bi-file-earmark-arrow-down-fill"></i></h2>
         </button>
+
+        <div class="float-search">
+            <input id="field" type="text" class="search-bar" placeholder="Enter Prompt to Update Webpage" type="submit"
+                name="prompt" value="{{ value }}" onsubmit="disableSubmit()">
+            <div class="search-toggler"></div>
+        </div>
     </form>
+
+    <script>
+        function disableSubmit() {
+            document.getElementById("field").disabled = true;
+        }
+    </script>
 
     </footer>
     <!-- Bootstrap core JS-->
