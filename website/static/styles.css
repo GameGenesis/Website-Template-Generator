@@ -4208,6 +4208,15 @@ textarea.form-control-lg {
 
 .card-title {
   margin-bottom: var(--bs-card-title-spacer-y);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-title:hover {
+  white-space: wrap;
+  overflow: visible;
+  text-overflow: normal;
 }
 
 .card-subtitle {
